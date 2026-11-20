@@ -70,6 +70,7 @@ label.inline {
 }
 input[type="text"],
 input[type="datetime-local"],
+input[type="time"],
 select {
   box-sizing: border-box;
   padding: 7px 8px;
@@ -223,4 +224,36 @@ td.codec-unsupported {
 }
 td button {
   padding: 3px 10px;
+}
+input.short {
+  width: 90px;
+}
+input.invalid {
+  border-color: var(--error);
+}
+label.grow {
+  flex: 1;
+  min-width: 280px;
+}
+label.grow input {
+  width: 100%;
+}
+td input.name {
+  width: 240px;
+  padding: 3px 6px;
+}
+td.st-ok {
+  color: var(--ok);
+}
+td.st-error {
+  color: var(--error);
+}
+td.st-busy {
+  color: var(--accent);
+}
+td.estimate {
+  color: var(--muted);
+}
+code {
+  font-size: 12px;
 }

@@ -45,9 +45,32 @@
             </select>
           </label>
           <label>
+            <span>Event</span>
+            <select id="event">
+              <option value="">All</option>
+            </select>
+          </label>
+          <label>
+            <span>Time of day from</span>
+            <input type="time" id="tod-from" />
+          </label>
+          <label>
+            <span>Time of day to</span>
+            <input type="time" id="tod-to" />
+          </label>
+          <label>
+            <span>Min length</span>
+            <input type="text" id="min-length" class="short" placeholder="e.g. 30s" spellcheck="false" />
+          </label>
+          <label>
+            <span>Max length</span>
+            <input type="text" id="max-length" class="short" placeholder="e.g. 1h" spellcheck="false" />
+          </label>
+          <label>
             <span>Search</span>
             <input type="text" id="search" placeholder="trigger, event, id" spellcheck="false" />
           </label>
+          <button type="button" class="secondary" id="clear-filters">Clear filters</button>
           <button type="button" class="secondary" id="refresh">Refresh</button>
         </div>
       </section>
@@ -111,8 +134,10 @@
                 <th>Trigger</th>
                 <th>Codec</th>
                 <th>Resolution</th>
-                <th>Status</th>
+                <th>Size</th>
                 <th>Clip</th>
+                <th>File name</th>
+                <th>Export</th>
                 <th></th>
               </tr>
             </thead>
@@ -121,7 +146,8 @@
         </div>
         <p class="hint">
           Click rows to select (Shift-click selects a range). Double-click or Play to review a recording; use
-          <em>Set clip start/end</em> to export only part of it.
+          <em>Set clip start/end</em> to export only part of it. Type in <em>File name</em> to give a recording its
+          own name. Sizes starting with ~ are estimates from a short sample of each codec and resolution.
         </p>
       </section>
 
@@ -141,12 +167,29 @@
               <option value="downloads">Browser downloads</option>
             </select>
           </label>
+          <label class="grow">
+            <span>File name pattern</span>
+            <input type="text" id="template" spellcheck="false" />
+          </label>
+        </div>
+        <p class="hint">
+          Fields: {camera} {model} {serial} {date} {time} {end} {duration} {type} {trigger} {codec} {resolution} {id}
+          {n}. Times are camera time. Example: <code id="template-preview"></code>
+        </p>
+        <div class="export">
           <label class="inline">
             <input type="checkbox" id="trim" />
             Cut recordings to From/To
           </label>
+          <label class="inline">
+            <input type="checkbox" id="sidecar" />
+            Save a metadata file (.json) with each recording
+          </label>
+          <span class="spacer"></span>
           <button type="button" id="export" disabled>Export selected</button>
           <button type="button" class="secondary" id="cancel" hidden>Cancel</button>
+          <button type="button" class="secondary" id="retry" hidden>Retry failed</button>
+          <button type="button" class="secondary" id="report" hidden>Save report</button>
         </div>
         <p class="hint" id="destination-hint"></p>
         <progress id="progress" value="0" max="1" hidden></progress>

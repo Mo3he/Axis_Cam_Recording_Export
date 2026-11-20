@@ -16,10 +16,17 @@ Select and bulk-export SD card recordings from the camera's web interface.
 ## Overview
 
 - Lists every recording on the camera's SD card (or network share) in the
-  camera's own web interface, with filters for date range, recording type,
-  codec, and trigger text.
+  camera's own web interface, with filters for date range, time of day,
+  length, recording type, event, codec, and free text.
 - Select any number of recordings (click, Shift-click, or select all shown) and
-  export them in one go as MP4 or MKV.
+  export them in one go as MP4 or MKV, with per-recording progress, cancel,
+  automatic retries, and a *Retry failed* button.
+- Shows the expected size and length of each recording and of the selection
+  before exporting.
+- Names files from a pattern with camera name, model, serial number, date,
+  time, codec, event, and more, and lets any recording get its own name.
+- Optionally saves a metadata file (`.json`) next to each recording, and a
+  CSV report of every export.
 - Review recordings in a built-in player before exporting: seek, play at up to
   8x, step to the previous or next recording, and mark a clip start and end so
   only that part is exported.
@@ -71,15 +78,41 @@ There is nothing to configure. Everything is chosen on the page:
   exports are trimmed to that window instead of including whole recordings.
 - **Clip start / end:** set in the player for a single recording; it takes
   priority over From/To for that recording.
-- **Format:** MP4 or MKV. Both keep the original video (no re-encoding).
+- **Filters:** date range, daily time window (for example 22:00 to 06:00),
+  minimum and maximum length (`30s`, `5m`, `1h30m`, or `1:30`), type, event,
+  codec, and free text.
+- **Format:** MP4 or MKV. Both keep the original video without re-encoding, so
+  the exported codec (H.264, H.265, or AV1) is the one the camera recorded
+  with. To record in a different codec, change the stream profile used for
+  recording in the camera settings.
 - **Save to:** *A folder I choose* streams each file straight into a folder and
   skips files that are already there (Chrome or Edge with the camera opened
   over HTTPS). *Browser downloads* saves each recording as a normal download;
   allow multiple downloads if the browser asks.
 
-Files are named `<camera>_<start time>_<recording id>.<ext>`, using camera local
-time. Exports are processed one at a time to keep the load on the camera low,
-and can be cancelled.
+- **File name pattern:** the default `{camera}_{date}_{time}_{id}` gives
+  names like `Axis-P3288_2026-11-20_10-23-11_20261120_102311_AF2B_E827252445DC`.
+  Available fields are `{camera}` (host name), `{model}`, `{serial}`, `{date}`,
+  `{time}`, `{end}`, `{duration}`, `{type}`, `{trigger}`, `{codec}`,
+  `{resolution}`, `{id}`, and `{n}` (position in the export, 001, 002, ...).
+  Times are camera local time and are those of the exported part. Type in a
+  recording's *File name* cell to override the pattern for it; fields work
+  there too. Characters Windows does not allow are replaced with `_`.
+- **Metadata file:** writes `<name>.json` with the camera name, model and
+  serial number, the recording id, type, event, codec and resolution, the
+  recording and requested times in UTC and camera time, the time of the first
+  exported frame, and the file size.
+
+Exports are processed one at a time to keep the load on the camera low. A
+failed export is retried twice automatically; what still fails is listed and
+can be retried with *Retry failed*. *Save report* writes a CSV with the result
+of every recording. In folder mode a failed or cancelled export leaves no file
+behind, so exporting the same selection again resumes where it stopped.
+
+Sizes are estimated from a 10 second sample of the newest recording of each
+codec and resolution (shown with `~`), and replaced by the measured rate once a
+recording has been exported. Scene content changes the bit rate, so treat them
+as a guide.
 
 ## Ports & security
 
@@ -106,6 +139,11 @@ marks accurate.
 
 Trimmed exports (From/To or a clip) also start at the keyframe before the
 requested time, so they can include a little extra video at the start.
+
+The camera writes the recording time into each file: the Matroska `DateUTC`
+field to the millisecond, and the MP4 `creation_time` to the second. Browsers
+cannot set a file's modification time, so saved files carry the time they were
+exported; use the file name, the embedded time, or the metadata file instead.
 
 ## Build from source
 
