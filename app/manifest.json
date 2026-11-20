@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "2.0.0",
+  "acapPackageConf": {
+    "setup": {
+      "appName": "Recording_Export",
+      "friendlyName": "Recording Export",
+      "vendor": "moshe@mohome.net",
+      "vendorId": "70ee172dd9",
+      "vendorUrl": "https://github.com/Mo3he/Axis_Cam_Recording_Export",
+      "version": "0.1.0",
+      "architecture": "BUILDARCH",
+      "runMode": "respawn",
+      "compatibleOsVersions": [{ "min": "11.11", "max": "13" }]
+    },
+    "configuration": {
+      "settingPage": "index.html"
+    }
+  }
+}
