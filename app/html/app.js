@@ -183,8 +183,10 @@ async function loadCamera() {
     Object.entries(groups).map(async ([key, group]) => {
       try {
         const response = await fetch(`/axis-cgi/param.cgi?action=list&group=${group}`, { credentials: "same-origin" });
-        const match = new RegExp(`^${group.replace(/\./g, "\\.")}=(.*)$`, "m").exec(await response.text());
-        if (response.ok && match && match[1].trim()) state.camera[key] = match[1].trim();
+        const prefix = `${group}=`;
+        const line = (await response.text()).split(/[\r\n\u2028\u2029]/).find((item) => item.startsWith(prefix));
+        const value = line ? line.slice(prefix.length).trim() : "";
+        if (response.ok && value) state.camera[key] = value;
       } catch {
         /* keep the default */
       }
