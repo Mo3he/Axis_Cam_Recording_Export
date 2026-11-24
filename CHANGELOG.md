@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- Avoid incomplete regular-expression escaping when reading camera parameters
+  by matching parameter names exactly.
+
 ## 0.2.0
 
 - Filters for time of day, minimum and maximum length, and event.
