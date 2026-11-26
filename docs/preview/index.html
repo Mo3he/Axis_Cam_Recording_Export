@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Recording Export</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <p style="max-width:1200px;margin:12px auto;padding:10px 14px;border:1px solid #b7791f;border-radius:6px;background:#fff7e6;color:#633f0c">
+      Offline preview · all recordings are fictional sample data. Playback and export/download actions are disabled;
+      no video is supplied or generated.
+    </p>
+    <main>
+      <header>
+        <h1>Recording Export</h1>
+        <button class="secondary" id="theme" type="button">Theme</button>
+      </header>
+
+      <section>
+        <div class="filters">
+          <label>
+            <span>Storage</span>
+            <select id="disk"></select>
+          </label>
+          <label>
+            <span>From (camera time)</span>
+            <input type="datetime-local" id="from" />
+          </label>
+          <label>
+            <span>To (camera time)</span>
+            <input type="datetime-local" id="to" />
+          </label>
+          <label>
+            <span>Type</span>
+            <select id="type">
+              <option value="">All</option>
+              <option value="continuous">Continuous</option>
+              <option value="triggered">Triggered</option>
+            </select>
+          </label>
+          <label>
+            <span>Codec</span>
+            <select id="codec">
+              <option value="">All</option>
+              <option value="video/x-h264">H.264</option>
+              <option value="video/x-h265">H.265</option>
+              <option value="video/x-av1">AV1</option>
+            </select>
+          </label>
+          <label>
+            <span>Event</span>
+            <select id="event">
+              <option value="">All</option>
+            </select>
+          </label>
+          <label>
+            <span>Time of day from</span>
+            <input type="time" id="tod-from" />
+          </label>
+          <label>
+            <span>Time of day to</span>
+            <input type="time" id="tod-to" />
+          </label>
+          <label>
+            <span>Min length</span>
+            <input type="text" id="min-length" class="short" placeholder="e.g. 30s" spellcheck="false" />
+          </label>
+          <label>
+            <span>Max length</span>
+            <input type="text" id="max-length" class="short" placeholder="e.g. 1h" spellcheck="false" />
+          </label>
+          <label>
+            <span>Search</span>
+            <input type="text" id="search" placeholder="trigger, event, id" spellcheck="false" />
+          </label>
+          <button type="button" class="secondary" id="clear-filters">Clear filters</button>
+          <button type="button" class="secondary" id="refresh">Refresh</button>
+        </div>
+      </section>
+
+      <section id="player" hidden>
+        <div class="toolbar">
+          <strong id="player-title"></strong>
+          <span class="actions">
+            <button type="button" class="secondary" id="prev">Previous</button>
+            <button type="button" class="secondary" id="next">Next</button>
+            <button type="button" class="secondary" id="close-player">Close</button>
+          </span>
+        </div>
+        <video id="video" playsinline></video>
+        <p class="warning" id="player-warning" hidden></p>
+        <div class="timeline">
+          <div class="clipbar"><div id="clip-region" hidden></div></div>
+          <input type="range" id="timeline" min="0" max="1" step="0.1" value="0" aria-label="Position" />
+        </div>
+        <div class="controls">
+          <button type="button" id="play">Play</button>
+          <button type="button" class="secondary" id="back">-10 s</button>
+          <button type="button" class="secondary" id="forward">+10 s</button>
+          <span id="time" class="time"></span>
+          <label class="inline">
+            Speed
+            <select id="speed">
+              <option value="0.5">0.5x</option>
+              <option value="1" selected>1x</option>
+              <option value="2">2x</option>
+              <option value="4">4x</option>
+              <option value="8">8x</option>
+            </select>
+          </label>
+          <span class="spacer"></span>
+          <button type="button" class="secondary" id="mark-in">Set clip start</button>
+          <button type="button" class="secondary" id="mark-out">Set clip end</button>
+          <button type="button" class="secondary" id="clip-clear">Clear clip</button>
+          <button type="button" class="secondary" id="fullscreen">Fullscreen</button>
+        </div>
+        <p class="hint" id="clip-info"></p>
+      </section>
+
+      <section>
+        <div class="toolbar">
+          <span id="summary">Loading...</span>
+          <span class="actions">
+            <button type="button" class="secondary" id="select-all">Select all shown</button>
+            <button type="button" class="secondary" id="select-none">Clear selection</button>
+          </span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="check-all" aria-label="Select all shown" /></th>
+                <th class="sortable" id="sort-start">Start</th>
+                <th>Stop</th>
+                <th>Duration</th>
+                <th>Type</th>
+                <th>Trigger</th>
+                <th>Codec</th>
+                <th>Resolution</th>
+                <th>Size</th>
+                <th>Clip</th>
+                <th>File name</th>
+                <th>Export</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+        <p class="hint">
+          Click rows to select (Shift-click selects a range). Double-click or Play to review a recording; use
+          <em>Set clip start/end</em> to export only part of it. Type in <em>File name</em> to give a recording its
+          own name. Sizes starting with ~ are estimates from a short sample of each codec and resolution.
+        </p>
+      </section>
+
+      <section>
+        <div class="export">
+          <label>
+            <span>Format</span>
+            <select id="format">
+              <option value="mp4">MP4</option>
+              <option value="matroska">MKV (Matroska)</option>
+            </select>
+          </label>
+          <label>
+            <span>Save to</span>
+            <select id="destination">
+              <option value="folder">A folder I choose</option>
+              <option value="downloads">Browser downloads</option>
+            </select>
+          </label>
+          <label class="grow">
+            <span>File name pattern</span>
+            <input type="text" id="template" spellcheck="false" />
+          </label>
+        </div>
+        <p class="hint">
+          Fields: {camera} {model} {serial} {date} {time} {end} {duration} {type} {trigger} {codec} {resolution} {id}
+          {n}. Times are camera time. Example: <code id="template-preview"></code>
+        </p>
+        <div class="export">
+          <label class="inline">
+            <input type="checkbox" id="trim" />
+            Cut recordings to From/To
+          </label>
+          <label class="inline">
+            <input type="checkbox" id="sidecar" />
+            Save a metadata file (.json) with each recording
+          </label>
+          <span class="spacer"></span>
+          <button type="button" id="export" disabled>Export selected</button>
+          <button type="button" class="secondary" id="cancel" hidden>Cancel</button>
+          <button type="button" class="secondary" id="retry" hidden>Retry failed</button>
+          <button type="button" class="secondary" id="report" hidden>Save report</button>
+        </div>
+        <p class="hint" id="destination-hint"></p>
+        <progress id="progress" value="0" max="1" hidden></progress>
+        <p id="status"></p>
+        <ul id="log"></ul>
+      </section>
+    </main>
+    <script src="mock.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
